@@ -10,7 +10,7 @@ namespace TestWindow
     public class GWindow : GameWindow
     {
 
-         [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential)]
         public struct _DWM_BLURBEHIND
         {
             public uint dwFlags;

@@ -1,5 +1,4 @@
 ﻿using TestWindow;
-using System.Runtime.InteropServices;
 
 internal class Program
 {
@@ -15,3 +14,5 @@ internal class Program
     }
 
 }
+
+/*                       YES THE WINDOW IS ALMOST COMPLETELY TRANSPARENT           */
