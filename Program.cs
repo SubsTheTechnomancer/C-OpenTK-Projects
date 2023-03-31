@@ -14,5 +14,3 @@ internal class Program
     }
 
 }
-
-/*                       YES THE WINDOW IS ALMOST COMPLETELY TRANSPARENT           */
