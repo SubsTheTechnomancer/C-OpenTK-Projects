@@ -46,7 +46,7 @@ class:
 
 # How did I do this?
 
-* Unfortunately it was a surprisingly painful journy into the bowels of windows documentation, which was incredibly unhelpful most of the time
+* Unfortunately it was a surprisingly painful journey into the bowels of windows documentation, which was incredibly unhelpful most of the time
 * To save everyone else from the pain is my purpose for this presentation (also to show off my cool transparent window)
 
 ---
@@ -402,7 +402,7 @@ So, finally, we have successfully made a transparent window! The only things lef
 * Firstly, Professor T. Ray from the CS department has been a massive influence on me and my now-lifelong passion for computer graphics. Thank you.
 * Windows Terminal. Seriously. It's magnificent. Don't let anybody tell you Windows is bad for coding.
 * Google is the only reason we can do anything in this world, truly one of the engines of all time.
-* My friends, who by listening to me ramble and complain about insignificant bugs in my code are unwittingly fueling my escapdes further. This is all your fault.
+* My friends, who by listening to me ramble and complain about insignificant bugs in my code are unwittingly fueling my escapades further. This is all your fault.
 
 ---
 
