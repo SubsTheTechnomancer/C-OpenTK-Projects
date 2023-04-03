@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -53,6 +55,16 @@ namespace TestWindow
             GL.UseProgram(Handle);
         }
 
+        public int GetAttribLocation(string attribName)
+        {
+            return GL.GetAttribLocation(Handle, attribName);
+        }
+
+        public void SetMatrix4(string uniformName, Matrix4 matrix)
+        {
+            GL.UniformMatrix4(GL.GetUniformLocation(Handle,uniformName), true, ref matrix);
+        }
+
         private bool disposedValue = false;
 
         protected virtual void Dispose(bool disposing)
@@ -98,13 +110,37 @@ namespace TestWindow
 
         float[] vertices =
         {
-            -0.5f,-0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f
+             0.5f,  0.5f, 0.5f,
+             0.5f, -0.5f, 0.5f,
+            -0.5f, -0.5f, 0.5f,
+            -0.5f,  0.5f, 0.5f,
+             0.5f,  0.5f, -0.5f,
+             0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+            -0.5f,  0.5f, -0.5f,
+        };
+
+        uint[] indices =
+        {
+            4,5,7,
+            5,6,7,
+            3,2,0,
+            0,2,1,
+            0,1,4,
+            4,1,5,
+            7,6,3,
+            3,6,2,
+            0,4,3,
+            3,4,7,
+            5,1,6,
+            6,1,2
         };
 
         int VertexBufferObject;
+        int ElementBufferObject;
         int VertexArrayObject;
+
+        Stopwatch timer;
 
         Shader shader;
 
@@ -114,14 +150,16 @@ namespace TestWindow
             Title = title
         }
         )
-        {}
+        {
+            timer = new Stopwatch();
+        }
 
         protected override void OnLoad()
         {
             base.OnLoad();
             
             _DWM_BLURBEHIND bb;
-            bb.dwFlags = 0x00000001 | 0x00000002;    //DWM_BB_ENABLE
+            bb.dwFlags = 0x00000001 | 0x00000002;           //DWM_BB_ENABLE
             bb.fEnable = true;
             bb.hRgnBlur = CreateRectRgn(0,0,-1,-1);
             bb.fTransitionOnMaximized = false;
@@ -130,39 +168,51 @@ namespace TestWindow
             DwmEnableBlurBehindWindow(hWnd,ref bb);
 
             GL.ClearColor(0.0f,0.0f,0.0f,0.0f);
+            GL.Enable(EnableCap.DepthTest);
 
+            shader = new Shader("shader.vert", "shader.frag");
             //Generate Buffers
             VertexBufferObject = GL.GenBuffer();
+            ElementBufferObject = GL.GenBuffer();
             VertexArrayObject = GL.GenVertexArray();
 
             GL.BindVertexArray(VertexArrayObject);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
-            
-            GL.VertexAttribPointer(0,3,VertexAttribPointerType.Float,false,3*sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.DynamicDraw);
 
-            shader = new Shader("shader.vert", "shader.frag");
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.DynamicDraw);
+            
+            GL.VertexAttribPointer(shader.GetAttribLocation("aPosition"),3,VertexAttribPointerType.Float,false,3*sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
             shader.Use();
 
+            timer.Start();
         }
 
         protected override void OnResize(ResizeEventArgs e)
         {
             base.OnResize(e);
-
-            GL.Viewport(0,0,e.Width,e.Height);
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             shader.Use();
+
+            float angle = (float)timer.Elapsed.TotalSeconds%360.0f;
+            Matrix4 mMatrix = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(20*angle)) * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(10*angle));
+            Matrix4 vMatrix = Matrix4.CreateTranslation(0.0f, 0.0f, -3.0f);
+            Matrix4 pMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f),Size.X/Size.Y,0.1f,100.0f);
+            shader.SetMatrix4("model",mMatrix);
+            shader.SetMatrix4("view",vMatrix);
+            shader.SetMatrix4("projection",pMatrix);
+
             GL.BindVertexArray(VertexArrayObject);
-            GL.DrawArrays(PrimitiveType.Triangles,0,3);
+            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
             SwapBuffers();
         }
