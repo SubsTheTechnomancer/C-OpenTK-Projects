@@ -1,25 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sratnam\\Documents\\C#\\testApp\\testApp.csproj": {}
+    "C:\\Users\\Subs\\Documents\\C-OpenTK-Projects\\testApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sratnam\\Documents\\C#\\testApp\\testApp.csproj": {
+    "C:\\Users\\Subs\\Documents\\C-OpenTK-Projects\\testApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sratnam\\Documents\\C#\\testApp\\testApp.csproj",
+        "projectUniqueName": "C:\\Users\\Subs\\Documents\\C-OpenTK-Projects\\testApp.csproj",
         "projectName": "testApp",
-        "projectPath": "C:\\Users\\sratnam\\Documents\\C#\\testApp\\testApp.csproj",
-        "packagesPath": "C:\\Users\\sratnam\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sratnam\\Documents\\C#\\testApp\\obj\\",
+        "projectPath": "C:\\Users\\Subs\\Documents\\C-OpenTK-Projects\\testApp.csproj",
+        "packagesPath": "C:\\Users\\Subs\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Subs\\Documents\\C-OpenTK-Projects\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\sratnam\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Subs\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

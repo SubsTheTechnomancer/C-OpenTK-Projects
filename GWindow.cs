@@ -146,12 +146,16 @@ namespace TestWindow
 
         public GWindow(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings()
         {
-            Size = (width, height),
-            Title = title
+            Size = (height, height),        //Forcing 1:1 Aspect Ratio (TODO: This would not work in vertical setups)
+            Title = title,
+            WindowBorder = WindowBorder.Hidden,
+            AspectRatio = (1,1),
+            Location = new Vector2i(width/2-height/2,0)
         }
         )
         {
             timer = new Stopwatch();
+            Console.WriteLine("{0:N},{1:N},{2:N}",width,height,width/2-height/2);
         }
 
         protected override void OnLoad()

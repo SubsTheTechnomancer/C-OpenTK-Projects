@@ -1,12 +1,14 @@
 ﻿using TestWindow;
+using OpenTK.Windowing.Desktop;
 
 internal class Program
 {
 
     private static void Main(string[] args)
     {
-
-        using (GWindow game = new GWindow(800, 800, "Test"))
+        int width = Monitors.GetPrimaryMonitor().HorizontalResolution;
+        int height = Monitors.GetPrimaryMonitor().VerticalResolution;
+        using (GWindow game = new GWindow(width, height, "Test"))
         {
             game.Run();
         }
