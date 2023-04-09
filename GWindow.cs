@@ -8,87 +8,6 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace TestWindow
 {
-
-    public class Shader: IDisposable
-    {
-        int Handle;
-
-        public Shader(string vertexPath, string fragmentPath)
-        {
-            string VertexShaderSource = File.ReadAllText(vertexPath);
-            string FragmentShaderSource = File.ReadAllText(fragmentPath);
-
-            var VertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(VertexShader, VertexShaderSource);
-            GL.CompileShader(VertexShader);
-
-            GL.GetShader(VertexShader,ShaderParameter.CompileStatus,out int success);
-            if(success==0) Console.WriteLine(GL.GetShaderInfoLog(VertexShader));
-
-            var FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(FragmentShader, FragmentShaderSource);
-            GL.CompileShader(FragmentShader);
-
-            GL.GetShader(FragmentShader,ShaderParameter.CompileStatus,out success);
-            if(success==0) Console.WriteLine(GL.GetShaderInfoLog(FragmentShader));
-
-            Handle = GL.CreateProgram();
-
-            GL.AttachShader(Handle, VertexShader);
-            GL.AttachShader(Handle, FragmentShader);
-
-            GL.LinkProgram(Handle);
-
-            GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out success);
-            if(success==0) Console.WriteLine(GL.GetProgramInfoLog(Handle));
-
-            //Cleanup
-            GL.DetachShader(Handle, VertexShader);
-            GL.DetachShader(Handle,FragmentShader);
-            GL.DeleteShader(VertexShader);
-            GL.DeleteShader(FragmentShader);
-
-        }
-
-        public void Use()
-        {
-            GL.UseProgram(Handle);
-        }
-
-        public int GetAttribLocation(string attribName)
-        {
-            return GL.GetAttribLocation(Handle, attribName);
-        }
-
-        public void SetMatrix4(string uniformName, Matrix4 matrix)
-        {
-            GL.UniformMatrix4(GL.GetUniformLocation(Handle,uniformName), true, ref matrix);
-        }
-
-        private bool disposedValue = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if(!disposedValue)
-            {
-                GL.DeleteProgram(Handle);
-                disposedValue = true;
-            }
-        }
-
-        ~Shader()
-        {
-            GL.DeleteProgram(Handle);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-    }
-
     public class GWindow : GameWindow
     {
 
@@ -136,11 +55,15 @@ namespace TestWindow
             6,1,2
         };
 
+        float[] vertColors;
+
         int VertexBufferObject;
         int ElementBufferObject;
+        int VertexColorBufferObject;
         int VertexArrayObject;
 
         Stopwatch timer;
+        Random rnd;
 
         Shader shader;
 
@@ -155,7 +78,7 @@ namespace TestWindow
         )
         {
             timer = new Stopwatch();
-            Console.WriteLine("{0:N},{1:N},{2:N}",width,height,width/2-height/2);
+            rnd = new Random();
         }
 
         protected override void OnLoad()
@@ -178,17 +101,30 @@ namespace TestWindow
             //Generate Buffers
             VertexBufferObject = GL.GenBuffer();
             ElementBufferObject = GL.GenBuffer();
-            VertexArrayObject = GL.GenVertexArray();
+            VertexColorBufferObject = GL.GenBuffer();
 
+            VertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(VertexArrayObject);
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.DynamicDraw);
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.DynamicDraw);
             
-            GL.VertexAttribPointer(shader.GetAttribLocation("aPosition"),3,VertexAttribPointerType.Float,false,3*sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
+            GL.VertexAttribPointer(shader.GetAttribLocation("aPosition"),3,VertexAttribPointerType.Float,false,3*sizeof(float),0);
+            GL.EnableVertexAttribArray(shader.GetAttribLocation("aPosition"));
+
+            //Generate Color buffer
+            vertColors = new float[3*8];
+            for(int i = 0; i < 3*8; i++) vertColors[i] = (float)rnd.NextDouble();
+            
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexColorBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertColors.Length * sizeof(float), vertColors, BufferUsageHint.StaticDraw);
+
+            GL.VertexAttribPointer(shader.GetAttribLocation("aColor"),3,VertexAttribPointerType.Float,false,3*sizeof(float),0);
+            GL.EnableVertexAttribArray(shader.GetAttribLocation("aColor"));
+
             shader.Use();
 
             timer.Start();
@@ -207,16 +143,17 @@ namespace TestWindow
 
             shader.Use();
 
-            float angle = (float)timer.Elapsed.TotalSeconds%360.0f;
-            Matrix4 mMatrix = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(20*angle)) * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(10*angle));
+            Matrix4 mMatrix = Matrix4.Identity;
             Matrix4 vMatrix = Matrix4.CreateTranslation(0.0f, 0.0f, -3.0f);
             Matrix4 pMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f),Size.X/Size.Y,0.1f,100.0f);
             shader.SetMatrix4("model",mMatrix);
             shader.SetMatrix4("view",vMatrix);
             shader.SetMatrix4("projection",pMatrix);
 
+
             GL.BindVertexArray(VertexArrayObject);
-            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+            GL.PointSize(10.0f);
+            GL.DrawElements(PrimitiveType.Points, indices.Length, DrawElementsType.UnsignedInt, 0);
 
             SwapBuffers();
         }
