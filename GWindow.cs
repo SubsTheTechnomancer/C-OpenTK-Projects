@@ -143,7 +143,7 @@ namespace TestWindow
 
             shader.Use();
 
-            Matrix4 mMatrix = Matrix4.Identity;
+            Matrix4 mMatrix = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(45.0f)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(45.0f));
             Matrix4 vMatrix = Matrix4.CreateTranslation(0.0f, 0.0f, -3.0f);
             Matrix4 pMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f),Size.X/Size.Y,0.1f,100.0f);
             shader.SetMatrix4("model",mMatrix);
@@ -153,7 +153,7 @@ namespace TestWindow
 
             GL.BindVertexArray(VertexArrayObject);
             GL.PointSize(10.0f);
-            GL.DrawElements(PrimitiveType.Points, indices.Length, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
             SwapBuffers();
         }
